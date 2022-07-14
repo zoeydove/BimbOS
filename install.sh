@@ -66,8 +66,8 @@ Section "Monitor"
 EndSection
 END
 
-wget -O /home/bambi/.config/plasma-org.kde.plasma.desktop-appletsrc https://raw.githubusercontent.com/katiegirlsarah/BimbOS/raw/main/plasma
-wget -O /home/bambi/.config/kdeglobals https://raw.githubusercontent.com/katiegirlsarah/BimbOS/raw/main/kdeglobals
+wget -O /home/bambi/.config/plasma-org.kde.plasma.desktop-appletsrc https://raw.githubusercontent.com/katiegirlsarah/BimbOS/main/plasma
+wget -O /home/bambi/.config/kdeglobals https://raw.githubusercontent.com/katiegirlsarah/BimbOS/main/kdeglobals
 
 pacman --noconfirm -S grub
 grub-install --target=i386-pc $DISK
