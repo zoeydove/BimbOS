@@ -2,7 +2,7 @@
 
 echo BimbOS installer v1.0
 echo
-echo Are you installing this in a Virtual Machine? [Y/n]
+echo "Are you installing this in a Virtual Machine? (and using virtualbox) [Y/n]"
 read vm
 
 if [[ "$vm" != "n" ]]; then
@@ -21,22 +21,19 @@ fi
 timedatectl set-ntp true
 
 DISK=/dev/sda
-EFI=/dev/sda1
-SWAP=/dev/sda2
-ROOT=/dev/sda3
+SWAP=/dev/sda1
+ROOT=/dev/sda2
 
 #TODO: partition disks
-
+echo -e "o\nn\n\n\n\n+4G\nt\n\n82\nn\n\n\n\n\nw" | fdisk -w always $DISK
+read
 mkfs.ext4 $ROOT
 mkswap $SWAP
-mkfs.fat -F32 $EFI
 
 swapon $SWAP
 mount $ROOT /mnt
-mkdir -p /mnt/boot/efi
-mount $EFI /mnt/boot/efi
 
-pacstrap /mnt base linux linux-firmware sof-firmware xorg-server sddm plasma-desktop networkmanager dhcpcd sudo kde-applications chromium vim nano git
+pacstrap /mnt base linux linux-firmware sof-firmware xorg-server sddm plasma-desktop networkmanager dhcpcd sudo kde-applications chromium vim nano git wget
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -56,14 +53,23 @@ systemctl enable NetworkManager
 systemctl enable dhcpcd
 systemctl enable sddm
 
-useradd -mbambi
+useradd -m bambi
 echo -n "bambi:goodgirl" | chpasswd
 echo -n "root:bambisleep" | chpasswd
 
 echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
-pacman --noconfirm -S grub efibootmgr
-grub-install --target=x86_64-efi --efi-directory=/boot/efi/
+cat << END > /etc/X11/xorg.conf
+Section "Monitor"
+	Identifier "Virtual-1"
+	Option "PreferredMode" "1920x1080"
+EndSection
+END
+
+wget -O /home/bambi/.config/plasma-org.kde.plasma.desktop-appletsrc https://raw.githubusercontent.com/katiegirlsarah/BimbOS/raw/main/plasma
+
+pacman --noconfirm -S grub
+grub-install --target=i386-pc $DISK
 grub-mkconfig -o /boot/grub/grub.cfg
 
 EOF
